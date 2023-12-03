@@ -42,24 +42,20 @@ class GamesController extends Controller
         return GamesResource::collection($games);
     }
 
-    public function update(StoreUpdateGamesRequest $request, $ids)
-    {
-        $data = $request->validated();
+    public function update(StoreUpdateGamesRequest $request, $ids){
+        $data = json_decode($request->getContent(), true);
     
         $idArray = explode(',', $ids);
     
-        foreach ($idArray as $id) {
-            $game = Games::find($id);
-    
-            if (!$game) {
+        foreach ($idArray as $key => $id) {
+            try {
+                $game = Games::findOrFail($id);
+            
+                $game->update($data[$key]);
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
                 return response()->json(['message' => "Registro com o ID $id não encontrado."], 404);
             }
-    
-            if (isset($data[$id])) {
-                $game->fill($data[$id])->save();
-            }
         }
-    
         return response()->json(['message' => 'Records updated successfully.']);
     }
     

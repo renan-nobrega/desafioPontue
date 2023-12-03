@@ -46,12 +46,12 @@ class StoreUpdateGamesRequest extends FormRequest
             ]
         ];
     
-        if ($this->method() == 'PATCH') {
+        if ($this->method() == 'PUT') {
             $rules['*.titulo'] = [
                 'nullable',
                 'min:1',
                 'max:255',
-                Rule::unique('games')->ignore($this->id),
+                // Rule::unique('games')->ignore($this->id),
             ];
             $rules['*.genero'] = [
                 'nullable',
