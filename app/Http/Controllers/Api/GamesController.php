@@ -20,26 +20,58 @@ class GamesController extends Controller
         
         $data = $request->validated();
 
-        $games = Games::create($data);
-        
-        return new GamesResource($games);
+        if (!is_array($data)) {
+            return response()->json(['error' => 'Invalid data format.'], 400);
+        }
+    
+        if (isset($data[0]) && is_array($data[0])) {
+            $games = collect($data)->map(function ($item) {
+                return Games::create($item);
+            });
+        } else {
+            $games = Games::create($data);
+        }
+        return GamesResource::collection($games);
     }
 
-    public function show(string $id){
-        $games = Games::findOrFail($id);
-        return new GamesResource($games);
+    public function show(string $ids){
+        $idsArray = explode(',', $ids);
+    
+        $games = Games::findOrFail($idsArray);
+    
+        return GamesResource::collection($games);
     }
 
-    public function update(StoreUpdateGamesRequest $request, string $id){
-
-        $data  = $request->validated();
-        $games = Games::findOrFail($id);
-        $games ->update($data);
-        return new GamesResource($games);
+    public function update(StoreUpdateGamesRequest $request, $ids)
+    {
+        $data = $request->validated();
+    
+        $idArray = explode(',', $ids);
+    
+        foreach ($idArray as $id) {
+            $game = Games::find($id);
+    
+            if (!$game) {
+                return response()->json(['message' => "Registro com o ID $id não encontrado."], 404);
+            }
+    
+            if (isset($data[$id])) {
+                $game->fill($data[$id])->save();
+            }
+        }
+    
+        return response()->json(['message' => 'Records updated successfully.']);
     }
-    public function destroy(string $id){
-        $games = Games::findOrFail($id);
-        $games->delete();
-        return response()->noContent();    
+    
+    public function destroy($ids){
+        $idArray = explode(',', $ids);
+
+        foreach ($idArray as $id) {
+            $game = Games::findOrFail($id);
+            if ($game) {
+            $game->delete();
+            }
+        }
+        return response()->noContent();
     }
 }

@@ -23,51 +23,53 @@ class StoreUpdateGamesRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'titulo' => [
+            '*.titulo' => [
                 'required',
                 'unique:games',
                 'min:1',
                 'max:255'
             ],
-            'genero' => [
+            '*.genero' => [
                 'required',
                 'min:1',
                 'max:255'
             ],
-            'plataforma' => [
+            '*.plataforma' => [
                 'required',
                 'min:1',
                 'max:255'
             ],
-            'valor' => [
+            '*.valor' => [
                 'required',
                 'min:1',
                 'max:100'
             ]
-         ];
-         if($this->method() == 'PATCH'){
-            $rules['titulo'] = [
+        ];
+    
+        if ($this->method() == 'PATCH') {
+            $rules['*.titulo'] = [
                 'nullable',
                 'min:1',
                 'max:255',
                 Rule::unique('games')->ignore($this->id),
             ];
-            $rules['genero'] = [
+            $rules['*.genero'] = [
                 'nullable',
                 'min:1',
-                'max:255' 
+                'max:255'
             ];
-            $rules['plataforma'] = [
+            $rules['*.plataforma'] = [
                 'nullable',
                 'min:1',
-                'max:255' 
+                'max:255'
             ];
-            $rules['valor'] = [
+            $rules['*.valor'] = [
                 'nullable',
                 'min:1',
-                'max:255' 
+                'max:255'
             ];
-         }        
+        }
+    
         return $rules;
     }
 }
