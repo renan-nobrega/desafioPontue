@@ -1,100 +1,56 @@
-
-# Setup Docker Com Laravel 10 e  PHP 8.1
+# Desafio API Pontue
 
 ### Passo a passo
-- Baixe o .Zip do projeto
+- Baixe o .Zip do projeto nesse repositório
 
 
-Crie o Arquivo .env
+Já deixei o arquivo .env disponível no projeto
+
+Depois de descompactar ou clonar o repositório, acesse a pasta do projeto pelo terminal
+
+Construa os containers do docker
 ```sh
-cp .env.example .env
+docker-compose build
 ```
 
-
-Atualize as variáveis de ambiente do arquivo .env
-```
-APP_NAME=Laravel
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost:8989
-
-LOG_CHANNEL=stack
-LOG_DEPRECATIONS_CHANNEL=null
-LOG_LEVEL=debug
-
-#Especificaçoes do docker-compose.yml
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=sistema_gestao
-DB_USERNAME=root
-DB_PASSWORD=root
-
-BROADCAST_DRIVER=log
-CACHE_DRIVER=file
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=sync
-SESSION_DRIVER=file
-SESSION_LIFETIME=120
-
-MEMCACHED_HOST=127.0.0.1
-
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-
-MAIL_MAILER=smtp
-MAIL_HOST=mailhog
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS=null
-MAIL_FROM_NAME="${APP_NAME}"
-
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=
-AWS_USE_PATH_STYLE_ENDPOINT=false
-
-PUSHER_APP_ID=
-PUSHER_APP_KEY=
-PUSHER_APP_SECRET=
-PUSHER_APP_CLUSTER=mt1
-
-MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
-MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
-```
-
-
-Suba os containers do projeto
+Inicie os containers 
 ```sh
 docker-compose up -d
 ```
 
-
-Acesse o container app
+Instale as dependências do Laravel
 ```sh
-docker-compose exec app bash
+docker-compose exec api_pontue composer install
 ```
-
-
-Instale as dependências do projeto
-```sh
-composer install
-```
-
 
 Gere a key do projeto Laravel
 ```sh
-php artisan key:generate
+docker-compose exec api_pontue php artisan key:generate
 ```
 
+Executar as Migrações do banco de dados
+```sh
+docker-compose exec api_pontue php artisan migrate
+```
 
 Acesse o projeto
 [http://localhost:8989](http://localhost:8989)
 
 
-github: https://github.com/VictorPadovan1997/setup-docker-laravel-10
+### Acesse o Postman
+
+Importe no Postman a coleção que esta preparada na raiz do projeto:
+
+- API-Pontue.postman_collection.json
+
+## Verbos Http da API
+| Método | Endpoint | Descrição | Dados Solicitados|
+|---|---|---|---|
+| `POST` | http://localhost:8989/api/auth/login | Primeiramente use essa rota para logar na API e obter o token de validação nas outras rotas, já deixei um usuário no body da requisição do postman que esta cadastrado no banco para facilitar | email: email@exemplo.com e password: password |
+| `POST` | http://localhost:8989/api/games | Adiciona novos cadastros de jogos ao banco de dados| titulo: nome do jogo, genero: genero do jogo, plataforma: plataformas que esta disponível, valor: valor do jogo|
+| `GET` | http://localhost:8989/api/games | Caso não seja passado nenhum ID na URL da requisição ele trará todos os jogos cadastrados com suas informações validadas | Apenas é necessário estar autenticado |
+| `GET` | http://localhost:8989/api/games/7,2 | Caso seja enviado um ou mais IDs na URL ele trará os jogos correspondentes | É necessário enviar os IDs na url |
+| `DELETE` | http://localhost:8989/api/games/7,8 | Apaga os registros cujo os IDs sejam enviados na URL | É necessário enviar um ou mais ID na URL |
+| `PUT` | http://localhost:8989/api/games/10,11 | Atualiza os registros cujo os IDs serão enviados na URL | titulo: nome do jogo, genero: genero do jogo, plataforma: plataformas que esta disponível, valor: valor do jogo |
+| `POST` | http://localhost:8989/api/auth/logout | Deleta o token de autenticação | Necessário apenas estar autenticado antes |
+| `POST` | http://localhost:8989/api/auth/reset | Atualiza a senha do usuário logado | Necessário enviar uma nova senha |

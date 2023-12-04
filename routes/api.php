@@ -16,4 +16,7 @@ Route::prefix('auth')->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout'])
         ->middleware('auth:sanctum');
+
+    Route::post('reset', [LoginController::class, 'reset'])
+        ->middleware('auth:sanctum');
 });
